@@ -5,6 +5,7 @@ using OpenTK;
 using NAudio;
 using OpenTK.Graphics.OpenGL;
 using NAudio.Wave;
+using System.IO;
 
 namespace animaciones3D
 {
@@ -24,8 +25,6 @@ namespace animaciones3D
             glControl.Height = 500;
             glControl.Width = 500;
 
-            // Llama al método para reproducir el audio automáticamente al cargar el formulario
-            ReproducirAudio();
         }
 
         private void ReproducirAudio()
@@ -33,29 +32,30 @@ namespace animaciones3D
             try
             {
                 // Ruta del archivo de audio
-                string rutaArchivo = "Recursos/archivo.wav";
+                string rutaArchivo = Environment.CurrentDirectory + "/Recursos/beatWav.wav";
 
                 // Crear un lector de audio con NAudio
-                using (var reader = new WaveFileReader(rutaArchivo))
-                {
-                    // Crear un reproductor de audio
-                    using (var waveOut = new WaveOutEvent())
-                    {
-                        waveOut.Init(reader);
+                WaveFileReader reader = new WaveFileReader(rutaArchivo);
 
-                        // Reproducir el audio
-                        waveOut.Play();
+                // Crear un reproductor de audio
+                WaveOutEvent waveOut = new WaveOutEvent();
 
-                        // Puedes agregar código adicional aquí si deseas realizar acciones mientras se reproduce el audio
-                    }
-                }
+                waveOut.Init(reader);
+
+                // Mostrar información sobre el reproductor antes de reproducir
+                Console.WriteLine($"Reproductor: Estado antes de reproducir - {waveOut.PlaybackState}");
+
+                // Reproducir el audio
+                waveOut.Play();
+
+                // Mostrar información sobre el reproductor después de reproducir
+                Console.WriteLine($"Reproductor: Estado después de reproducir - {waveOut.PlaybackState}");
             }
             catch (Exception ex)
             {
                 MessageBox.Show($"Error al reproducir el audio: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
-
 
         private void Form1_Load(object sender, EventArgs e)
         {
@@ -64,10 +64,24 @@ namespace animaciones3D
             // Configuración básica de OpenGL
             GL.ClearColor(System.Drawing.Color.Black);
             GL.Enable(EnableCap.DepthTest);
+
+            try
+            {
+                string videoPath = "C:\\Users\\PC\\source\\repos\\animaciones3D\\animaciones3D\\Recursos\\perro.mp4";
+                axWindowsMediaPlayer1.URL = videoPath;
+                axWindowsMediaPlayer1.settings.setMode("loop", true);
+                axWindowsMediaPlayer1.Ctlcontrols.play();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error al cargar y reproducir el video: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+
+            ReproducirAudio();
         }
 
         private float angle = 0.0f; // Variable para el ángulo de rotación
-        private float rotationSpeed = 0.01f; // Velocidad de rotación
+        private float rotationSpeed = 0.5f; // Velocidad de rotación
         private void glControl_Paint(object sender, PaintEventArgs e)
         {
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
@@ -203,7 +217,6 @@ namespace animaciones3D
 
             GL.End();
         }
-
 
     }
 }
